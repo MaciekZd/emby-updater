@@ -3,6 +3,8 @@
 A QNAP QPKG application that updates [Emby Server](https://emby.media/) (stable & beta) with one click.  
 Features a web UI with scheduler, login, and Polish/English language support.
 
+<img width="1625" height="1348" alt="image" src="https://github.com/user-attachments/assets/a635ed7c-e966-41b4-bb36-9c1d8463f407" />
+
 ![App Center Icon](icons/EmbyUpdater.gif)
 
 ---
@@ -23,7 +25,7 @@ Features a web UI with scheduler, login, and Polish/English language support.
 |-------------|---------|
 | NAS architecture | **x86_64 only** |
 | QTS version | 4.3.0 or later |
-| [QBase24](https://www.qnap.com/en/app_center/) | Must be installed (provides Python 3) |
+| [QBase24]([https://www.qnap.com/en/app_center/](https://www.myqnap.org/product/qbase24/)) | Must be installed (provides Python 3) |
 | Port | 9876 (must be free) |
 | Internet | Required for update checks and downloads |
 | Emby Server | Should be installed before using the updater |
