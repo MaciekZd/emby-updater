@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Emby Updater · Login</title>
+<style>
+:root {
+  --bg: #0d0f14; --surface: #13161e; --border: #1e2330;
+  --text: #c8cdd8; --muted: #5a6070;
+  --accent: #00b36b; --accent2: #008f55;
+  --red: #ef4444; --mono: 'JetBrains Mono', monospace;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: var(--bg); color: var(--text);
+  font-family: system-ui, sans-serif;
+  min-height: 100vh; display: flex; align-items: center; justify-content: center;
+}
+.card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 20px; padding: 40px; width: 100%; max-width: 380px;
+}
+.logo {
+  display: flex; align-items: center; gap: 14px; margin-bottom: 32px;
+}
+.logo-icon {
+  width: 52px; height: 52px; border-radius: 14px;
+  background: var(--accent);
+  display: flex; align-items: center; justify-content: center;
+}
+.logo-icon svg { width: 28px; height: 28px; fill: #fff; }
+.logo-text h1 { font-size: 1.3rem; font-weight: 700; color: #e8eaf0; }
+.logo-text p  { font-size: 0.72rem; color: var(--muted); margin-top: 2px; font-family: var(--mono); }
+label { display: block; font-size: 0.72rem; color: var(--muted); margin-bottom: 6px; letter-spacing: .5px; text-transform: uppercase; }
+input[type=text], input[type=password] {
+  width: 100%; padding: 11px 14px; border-radius: 10px;
+  background: var(--bg); border: 1px solid var(--border);
+  color: var(--text); font-size: 0.9rem; outline: none;
+  transition: border-color .15s;
+}
+input:focus { border-color: var(--accent); }
+.field { margin-bottom: 18px; }
+.btn-login {
+  width: 100%; padding: 13px; border-radius: 10px; border: none;
+  background: var(--accent); color: #fff;
+  font-size: 0.9rem; font-weight: 600; cursor: pointer;
+  transition: background .15s;
+}
+.btn-login:hover { background: var(--accent2); }
+.error {
+  background: rgba(239,68,68,.12); border: 1px solid rgba(239,68,68,.3);
+  color: var(--red); border-radius: 8px; padding: 10px 14px;
+  font-size: 0.78rem; margin-bottom: 18px; display: none;
+}
+.error.show { display: block; }
+.lang-row {
+  display: flex; justify-content: flex-end; gap: 8px;
+  margin-bottom: 28px;
+}
+.lang-btn {
+  background: none; border: 1px solid var(--border); color: var(--muted);
+  padding: 4px 10px; border-radius: 6px; font-size: 0.7rem; cursor: pointer;
+  font-family: var(--mono);
+}
+.lang-btn.active { border-color: var(--accent); color: var(--accent); }
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="lang-row">
+    <button class="lang-btn" id="btn-pl" onclick="setLang('pl')">PL</button>
+    <button class="lang-btn" id="btn-en" onclick="setLang('en')">EN</button>
+  </div>
+  <div class="logo">
+    <div class="logo-icon">
+      <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+    </div>
+    <div class="logo-text">
+      <h1>Emby Updater</h1>
+      <p>QNAP · x86_64</p>
+    </div>
+  </div>
+  <div class="error" id="err"></div>
+  <form method="POST" action="/api/login">
+    <div class="field">
+      <label id="lbl-user">Użytkownik</label>
+      <input type="text" name="username" autocomplete="username" required>
+    </div>
+    <div class="field">
+      <label id="lbl-pass">Hasło</label>
+      <input type="password" name="password" autocomplete="current-password" required>
+    </div>
+    <button type="submit" class="btn-login" id="lbl-submit">Zaloguj się</button>
+  </form>
+</div>
+<script>
+const T = {
+  pl: { user:'Użytkownik', pass:'Hasło', submit:'Zaloguj się', error:'Nieprawidłowy login lub hasło.' },
+  en: { user:'Username',   pass:'Password', submit:'Sign in', error:'Invalid username or password.' }
+};
+let lang = localStorage.getItem('eu_lang') || 'pl';
+function setLang(l) {
+  lang = l; localStorage.setItem('eu_lang', l);
+  document.getElementById('lbl-user').textContent   = T[l].user;
+  document.getElementById('lbl-pass').textContent   = T[l].pass;
+  document.getElementById('lbl-submit').textContent = T[l].submit;
+  document.getElementById('btn-pl').classList.toggle('active', l==='pl');
+  document.getElementById('btn-en').classList.toggle('active', l==='en');
+  const err = document.getElementById('err');
+  if (err.classList.contains('show')) err.textContent = T[l].error;
+}
+if (location.search.includes('error=1')) {
+  const err = document.getElementById('err');
+  err.textContent = T[lang].error;
+  err.classList.add('show');
+}
+setLang(lang);
+</script>
+</body>
+</html>

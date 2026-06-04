@@ -1,0 +1,38 @@
+pkg_pre_install(){
+    [ -f /var/run/EmbyUpdater.pid ] && {
+        kill "$(cat /var/run/EmbyUpdater.pid)" 2>/dev/null
+        rm -f /var/run/EmbyUpdater.pid
+    }
+    return 0
+}
+
+pkg_install(){
+    chmod +x "${SYS_QPKG_DIR}/emby-updater.sh"  2>/dev/null
+    chmod +x "${SYS_QPKG_DIR}/EmbyUpdater.sh"    2>/dev/null
+    chmod +x "${SYS_QPKG_DIR}/server.py"         2>/dev/null
+    chmod +x "${SYS_QPKG_DIR}/cgi-bin/update"    2>/dev/null
+    [ -d /share/homes/admin ] && \
+        ln -sf "${SYS_QPKG_DIR}/emby-updater.sh" /share/homes/admin/emby-updater.sh
+    return 0
+}
+
+pkg_post_install(){
+    /sbin/setcfg EmbyUpdater Enable TRUE -f /etc/config/qpkg.conf
+    "${SYS_QPKG_DIR}/EmbyUpdater.sh" start 2>/dev/null
+    return 0
+}
+
+pkg_pre_remove(){
+    "${SYS_QPKG_DIR}/EmbyUpdater.sh" stop 2>/dev/null
+    return 0
+}
+
+pkg_main_remove(){
+    rm -f /share/homes/admin/emby-updater.sh 2>/dev/null
+    rm -f /var/run/EmbyUpdater.pid            2>/dev/null
+    return 0
+}
+
+pkg_post_remove(){
+    return 0
+}

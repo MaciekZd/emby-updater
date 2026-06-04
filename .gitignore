@@ -1,0 +1,26 @@
+# Built QPKG binary (build on QNAP, not committed)
+*.qpkg
+build/
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Temporary / debug files
+*.log
+*.gif.bak
+EmbyUpdater_current_icon.gif
+EmbyUpdater_new.gif
+EmbyUpdater_icon_preview.png
+data_extracted.tgz
+ctrl_extracted.tgz
+build_qpkg.py
+
+# Claude settings (contain local IP / credentials)
+.claude/
+
+# Leftover build/test artifacts
+EmbyUpdater-qdk-project.zip
+EmbyUpdater_preview.gif
+icon_preview.png
