@@ -264,6 +264,18 @@ input:focus{border-color:var(--accent)}
     </div>
 
     <div class="settings-section">
+      <div class="settings-title" id="lbl-dl-section">Katalog pobierania</div>
+      <div class="field">
+        <label id="lbl-dl-path">Ścieżka</label>
+        <input type="text" id="download-path" placeholder="/share/CACHEDEV1_DATA/Download" autocomplete="off">
+      </div>
+      <div class="hint" id="lbl-dl-hint" style="font-size:0.78rem;color:var(--muted);margin-top:4px"></div>
+      <div class="actions">
+        <button class="btn btn-save" id="btn-save-dl" onclick="saveDownloadPath()"></button>
+      </div>
+    </div>
+
+    <div class="settings-section">
       <div class="settings-title" id="lbl-reset-section">Reset hasła (SSH)</div>
       <div class="reset-info" id="reset-info-text"></div>
     </div>
@@ -300,6 +312,10 @@ const T = {
     'lbl-confirm-pass':'Potwierdź hasło',
     'btn-save-creds':'💾 Zapisz dane logowania',
     'btn-logout-all':'⏻ Wyloguj wszystkie sesje',
+    'lbl-dl-section':'Katalog pobierania',
+    'lbl-dl-path':'Ścieżka tymczasowa (puste = auto-wykryj)',
+    'lbl-dl-hint':'Domyślnie: /share/CACHEDEV1_DATA/Download — zmień jeśli masz inny wolumen',
+    'btn-save-dl':'💾 Zapisz ścieżkę',
     'lbl-reset-section':'Reset hasła (SSH)',
     'reset-info': 'Jeśli zapomnisz hasła, wykonaj przez SSH:\n<code>touch /share/CACHEDEV1_DATA/.qpkg/EmbyUpdater/reset_credentials</code>\n\nnastępnie zrestartuj QPKG:\n<code>/share/CACHEDEV1_DATA/.qpkg/EmbyUpdater/EmbyUpdater.sh restart</code>\n\nHasło zostanie przywrócone do domyślnego: <code>admin / admin</code>',
     'toast-saved':'✓ Zapisano', 'toast-error':'✗ Błąd',
@@ -333,6 +349,10 @@ const T = {
     'lbl-confirm-pass':'Confirm password',
     'btn-save-creds':'💾 Save credentials',
     'btn-logout-all':'⏻ Log out all sessions',
+    'lbl-dl-section':'Download directory',
+    'lbl-dl-path':'Temp path (empty = auto-detect)',
+    'lbl-dl-hint':'Default: /share/CACHEDEV1_DATA/Download — change if your volume is different',
+    'btn-save-dl':'💾 Save path',
     'lbl-reset-section':'Password reset (SSH)',
     'reset-info': 'If you forget your password, run via SSH:\n<code>touch /share/CACHEDEV1_DATA/.qpkg/EmbyUpdater/reset_credentials</code>\n\nthen restart the QPKG:\n<code>/share/CACHEDEV1_DATA/.qpkg/EmbyUpdater/EmbyUpdater.sh restart</code>\n\nCredentials will be reset to default: <code>admin / admin</code>',
     'toast-saved':'✓ Saved', 'toast-error':'✗ Error',
@@ -358,7 +378,9 @@ function applyLang() {
     'opt-sun','opt-mon','opt-tue','opt-wed','opt-thu','opt-fri','opt-sat',
     'btn-sched-save','lbl-settings-title','lbl-lang-section',
     'lbl-credentials','lbl-new-user','lbl-new-pass','lbl-confirm-pass',
-    'btn-save-creds','btn-logout-all','lbl-reset-section'];
+    'btn-save-creds','btn-logout-all',
+    'lbl-dl-section','lbl-dl-path','lbl-dl-hint','btn-save-dl',
+    'lbl-reset-section'];
   ids.forEach(id => { const el = document.getElementById(id); if (el) el.textContent = t(id); });
 
   // Reset info with HTML
@@ -572,6 +594,13 @@ async function saveCreds() {
   } else toast(t('toast-error'));
 }
 
+async function saveDownloadPath() {
+  const path = document.getElementById('download-path').value.trim();
+  const d = await api('POST', '/api/settings', {download_path: path});
+  if (d.ok) toast(t('toast-saved'));
+  else toast(t('toast-error'));
+}
+
 async function logoutAll() {
   const d = await api('POST', '/api/settings', {logout_all: true});
   if (d.ok) { toast(t('toast-logged-out')); setTimeout(() => location='/login', 1500); }
@@ -606,6 +635,9 @@ function toast(msg) {
       inst.textContent = '?'; sub.textContent = t('v-inst-sub-err');
     }
     if (d.schedule) loadSched(d.schedule);
+    // populate download path
+    const cfg = await api('GET', '/api/config');
+    if (cfg) document.getElementById('download-path').value = cfg.download_path || '';
   } catch(e) { /* silent */ }
 })();
 </script>
