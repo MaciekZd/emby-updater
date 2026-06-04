@@ -5,6 +5,9 @@ Features a web UI with scheduler, login, and Polish/English language support.
 
 <img width="1625" height="1348" alt="image" src="https://github.com/user-attachments/assets/a635ed7c-e966-41b4-bb36-9c1d8463f407" />
 
+<img width="1587" height="1221" alt="image" src="https://github.com/user-attachments/assets/8ab16fbd-af2c-4fe3-ac32-6948683000db" />
+
+
 ![App Center Icon](icons/EmbyUpdater.gif)
 
 ---
