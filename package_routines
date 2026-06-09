@@ -1,22 +1,31 @@
 pkg_pre_install(){
-    [ -f /var/run/EmbyUpdater.pid ] && {
-        kill "$(cat /var/run/EmbyUpdater.pid)" 2>/dev/null
-        rm -f /var/run/EmbyUpdater.pid
-    }
+    # Backup config before upgrade (QPKG_CONFIG md5sum mechanism requires
+    # a md5sum file we don't ship — do it manually instead)
+    CONFIG_FILE="${SYS_QPKG_DIR}/config"
+    CONFIG_BACKUP="/tmp/EmbyUpdater_config.bak"
+    if [ -f "$CONFIG_FILE" ]; then
+        cp -f "$CONFIG_FILE" "$CONFIG_BACKUP"
+    fi
     return 0
 }
 
 pkg_install(){
-    chmod +x "${SYS_QPKG_DIR}/emby-updater.sh"  2>/dev/null
-    chmod +x "${SYS_QPKG_DIR}/EmbyUpdater.sh"    2>/dev/null
-    chmod +x "${SYS_QPKG_DIR}/server.py"         2>/dev/null
-    chmod +x "${SYS_QPKG_DIR}/cgi-bin/update"    2>/dev/null
-    [ -d /share/homes/admin ] && \
-        ln -sf "${SYS_QPKG_DIR}/emby-updater.sh" /share/homes/admin/emby-updater.sh
+    chmod +x "${SYS_QPKG_DIR}/emby-updater.sh"        2>/dev/null
+    chmod +x "${SYS_QPKG_DIR}/EmbyUpdater.sh"          2>/dev/null
+    chmod +x "${SYS_QPKG_DIR}/www/cgi-bin/api.cgi"     2>/dev/null
+    chmod +x "${SYS_QPKG_DIR}/bin/busybox"             2>/dev/null
     return 0
 }
 
 pkg_post_install(){
+    # Restore config if backup exists
+    CONFIG_FILE="${SYS_QPKG_DIR}/config"
+    CONFIG_BACKUP="/tmp/EmbyUpdater_config.bak"
+    if [ -f "$CONFIG_BACKUP" ]; then
+        cp -f "$CONFIG_BACKUP" "$CONFIG_FILE"
+        rm -f "$CONFIG_BACKUP"
+    fi
+
     /sbin/setcfg EmbyUpdater Enable TRUE -f /etc/config/qpkg.conf
     "${SYS_QPKG_DIR}/EmbyUpdater.sh" start 2>/dev/null
     return 0
@@ -28,8 +37,7 @@ pkg_pre_remove(){
 }
 
 pkg_main_remove(){
-    rm -f /share/homes/admin/emby-updater.sh 2>/dev/null
-    rm -f /var/run/EmbyUpdater.pid            2>/dev/null
+    rm -f /var/run/EmbyUpdater.pid 2>/dev/null
     return 0
 }
 

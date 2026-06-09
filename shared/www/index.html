@@ -22,7 +22,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:1
 .logo-icon img{height:44px;width:auto}
 .logo-text{display:flex;align-items:center;height:44px;padding-bottom:4px;gap:10px}
 .logo-text span{font-family:'Nunito','Segoe UI',system-ui,sans-serif;font-size:2.4rem;font-weight:700;color:#e8eaf0;letter-spacing:-0.5px;line-height:1}
-.app-ver{font-size:0.68rem;color:var(--muted);font-family:var(--mono);align-self:flex-end;padding-bottom:7px}
+.app-ver{font-size:0.65rem;color:var(--muted);font-family:var(--mono);text-align:center;display:block;margin-top:3px}
 .update-banner{width:100%;max-width:780px;background:rgba(79,142,247,.08);border:1px solid rgba(79,142,247,.25);border-radius:12px;padding:12px 16px;margin-bottom:14px;display:none;align-items:center;gap:12px}
 .update-banner.show{display:flex}
 .update-banner-text{flex:1;font-size:0.82rem;color:#e8eaf0}
@@ -31,7 +31,8 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:1
 .btn-self-update:hover{opacity:.85}
 .btn-self-update:disabled{opacity:.4;cursor:not-allowed}
 .spacer{flex:1}
-.topbar-actions{display:flex;gap:8px;align-items:center}
+.topbar-actions{display:flex;gap:8px;align-items:flex-start}
+.logout-wrap{display:flex;flex-direction:column;align-items:center}
 .lang-btn,.icon-btn{background:none;border:1px solid var(--border);color:var(--muted);padding:5px 10px;border-radius:7px;font-size:0.7rem;cursor:pointer;font-family:var(--mono);transition:color .15s,border-color .15s}
 .lang-btn.active{border-color:var(--accent);color:var(--accent)}
 .lang-btn:hover,.icon-btn:hover{color:var(--text);border-color:var(--border2)}
@@ -138,13 +139,15 @@ input:focus{border-color:var(--accent)}
   </div>
   <div class="logo-text">
     <span>updater</span>
-    <span class="app-ver" id="app-ver"></span>
   </div>
   <div class="spacer"></div>
   <div class="topbar-actions">
     <button class="lang-btn" id="btn-pl" onclick="setLang('pl')">PL</button>
     <button class="lang-btn" id="btn-en" onclick="setLang('en')">EN</button>
-    <button class="icon-btn" onclick="doLogout()" title="Logout">⏻</button>
+    <div class="logout-wrap">
+      <button class="icon-btn" onclick="doLogout()" title="Logout">⏻</button>
+      <span class="app-ver" id="app-ver"></span>
+    </div>
   </div>
 </div>
 
