@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Emby Updater</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700&display=swap" rel="stylesheet">
 <style>
 :root {
   --bg:#0d0f14; --surface:#13161e; --border:#1e2330; --border2:#252a3a;
@@ -16,10 +18,18 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:1
 
 /* ── Top bar ── */
 .topbar{width:100%;max-width:780px;display:flex;align-items:center;gap:12px;margin-bottom:24px}
-.logo-icon{width:44px;height:44px;border-radius:12px;background:var(--accent);display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.logo-icon svg{width:24px;height:24px;fill:#fff}
-.logo-text h1{font-size:1.2rem;font-weight:700;color:#e8eaf0}
-.logo-text p{font-size:0.7rem;color:var(--muted);font-family:var(--mono)}
+.logo-icon{height:44px;display:flex;align-items:center;flex-shrink:0}
+.logo-icon img{height:44px;width:auto}
+.logo-text{display:flex;align-items:center;height:44px;padding-bottom:4px;gap:10px}
+.logo-text span{font-family:'Nunito','Segoe UI',system-ui,sans-serif;font-size:2.4rem;font-weight:700;color:#e8eaf0;letter-spacing:-0.5px;line-height:1}
+.app-ver{font-size:0.68rem;color:var(--muted);font-family:var(--mono);align-self:flex-end;padding-bottom:7px}
+.update-banner{width:100%;max-width:780px;background:rgba(79,142,247,.08);border:1px solid rgba(79,142,247,.25);border-radius:12px;padding:12px 16px;margin-bottom:14px;display:none;align-items:center;gap:12px}
+.update-banner.show{display:flex}
+.update-banner-text{flex:1;font-size:0.82rem;color:#e8eaf0}
+.update-banner-text span{color:var(--blue);font-family:var(--mono);font-weight:600}
+.btn-self-update{background:var(--blue);color:#fff;padding:8px 16px;border-radius:8px;border:none;font-size:0.78rem;font-weight:600;cursor:pointer;white-space:nowrap}
+.btn-self-update:hover{opacity:.85}
+.btn-self-update:disabled{opacity:.4;cursor:not-allowed}
 .spacer{flex:1}
 .topbar-actions{display:flex;gap:8px;align-items:center}
 .lang-btn,.icon-btn{background:none;border:1px solid var(--border);color:var(--muted);padding:5px 10px;border-radius:7px;font-size:0.7rem;cursor:pointer;font-family:var(--mono);transition:color .15s,border-color .15s}
@@ -115,20 +125,26 @@ input:focus{border-color:var(--accent)}
 </head>
 <body>
 
+<!-- Self-update banner -->
+<div class="update-banner" id="update-banner">
+  <div class="update-banner-text" id="update-banner-text"></div>
+  <button class="btn-self-update" id="btn-self-update" onclick="doSelfUpdate()"></button>
+</div>
+
 <!-- Top bar -->
 <div class="topbar">
   <div class="logo-icon">
-    <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+    <img src="data:image/png;base64,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" alt="Emby">
   </div>
   <div class="logo-text">
-    <h1>Emby Updater</h1>
-    <p id="hdr-sub">QNAP · x86_64</p>
+    <span>updater</span>
+    <span class="app-ver" id="app-ver"></span>
   </div>
   <div class="spacer"></div>
   <div class="topbar-actions">
     <button class="lang-btn" id="btn-pl" onclick="setLang('pl')">PL</button>
     <button class="lang-btn" id="btn-en" onclick="setLang('en')">EN</button>
-    <button class="icon-btn" onclick="location='/logout'" title="Logout">⏻</button>
+    <button class="icon-btn" onclick="doLogout()" title="Logout">⏻</button>
   </div>
 </div>
 
@@ -318,6 +334,9 @@ const T = {
     'btn-save-dl':'💾 Zapisz ścieżkę',
     'lbl-reset-section':'Reset hasła (SSH)',
     'reset-info': 'Jeśli zapomnisz hasła, wykonaj przez SSH:\n<code>touch /share/CACHEDEV1_DATA/.qpkg/EmbyUpdater/reset_credentials</code>\n\nnastępnie zrestartuj QPKG:\n<code>/share/CACHEDEV1_DATA/.qpkg/EmbyUpdater/EmbyUpdater.sh restart</code>\n\nHasło zostanie przywrócone do domyślnego: <code>admin / admin</code>',
+    'self-update-avail':'Dostępna nowa wersja EmbyUpdater: <span>v{v}</span>',
+    'btn-self-update':'⬆ Zaktualizuj',
+    'self-updating':'Pobieranie v{v}... aplikacja uruchomi się ponownie.',
     'toast-saved':'✓ Zapisano', 'toast-error':'✗ Błąd',
     'toast-creds-ok':'✓ Dane logowania zaktualizowane',
     'toast-creds-mismatch':'Hasła nie są identyczne',
@@ -355,6 +374,9 @@ const T = {
     'btn-save-dl':'💾 Save path',
     'lbl-reset-section':'Password reset (SSH)',
     'reset-info': 'If you forget your password, run via SSH:\n<code>touch /share/CACHEDEV1_DATA/.qpkg/EmbyUpdater/reset_credentials</code>\n\nthen restart the QPKG:\n<code>/share/CACHEDEV1_DATA/.qpkg/EmbyUpdater/EmbyUpdater.sh restart</code>\n\nCredentials will be reset to default: <code>admin / admin</code>',
+    'self-update-avail':'New EmbyUpdater version available: <span>v{v}</span>',
+    'btn-self-update':'⬆ Update',
+    'self-updating':'Downloading v{v}... app will restart shortly.',
     'toast-saved':'✓ Saved', 'toast-error':'✗ Error',
     'toast-creds-ok':'✓ Credentials updated',
     'toast-creds-mismatch':'Passwords do not match',
@@ -402,7 +424,7 @@ function setLang(l) {
 
 function changeLangSave(l) {
   setLang(l);
-  api('POST', '/api/settings', {language: l}).then(() => toast(t('toast-saved')));
+  api('POST', '/cgi-bin/api.cgi/settings', {language: l}).then(() => toast(t('toast-saved')));
 }
 
 // ═══════════════════════════════════════════════════════
@@ -426,14 +448,16 @@ let state = { installed:null, stableTag:null, stableName:null, betaTag:null, bet
 // API
 // ═══════════════════════════════════════════════════════
 async function api(method, path, body=null) {
-  const opts = { method, headers:{'Content-Type':'application/json'}, cache:'no-store' };
+  const opts = { method, headers:{'Content-Type':'application/json'}, cache:'no-store', credentials:'include' };
   if (body) opts.body = JSON.stringify(body);
   const r = await fetch(path, opts);
+  if (r.status === 401) { location='/login.html'; return {}; }
   return r.json();
 }
 
 function parseKV(text) {
   const r = {};
+  if (!text) return {};
   for (const line of text.split('\n')) {
     const m = line.match(/^([A-Z_]+)=(.*)$/);
     if (m) r[m[1]] = m[2];
@@ -482,10 +506,10 @@ async function doCheck() {
   setBusy(true, t('prog-check'));
   addLog('...', 'info');
   try {
-    const d = await api('GET', '/api/check');
+    const d = await api('GET', '/cgi-bin/api.cgi/check');
     document.getElementById('log').innerHTML = '';
     addLog(d.output || '');
-    const kv = parseKV(d.output);
+    const kv = parseKV(d.output || "");
     state.installed  = kv.INSTALLED;
     state.stableTag  = kv.STABLE_TAG;
     state.stableName = kv.STABLE_NAME;
@@ -516,7 +540,7 @@ async function doUpdate(channel) {
   setBusy(true, t('prog-update').replace('{}', ver));
   addLog(`→ ${ver} (${channel})`, 'info');
   try {
-    const d = await api('POST', '/api/update', {channel});
+    const d = await api('POST', '/cgi-bin/api.cgi/update', {channel});
     addLog(d.output || '');
     if (/SUCCESS/.test(d.output))      addLog('✓ OK', 'ok');
     else if (/UP_TO_DATE/.test(d.output)) addLog(t('status-up-to-date'), 'ok');
@@ -559,7 +583,7 @@ async function saveSched() {
     day:       parseInt(document.getElementById('sched-day').value),
     hour:      parseInt(document.getElementById('sched-hour').value)
   };
-  const d = await api('POST', '/api/schedule', data);
+  const d = await api('POST', '/cgi-bin/api.cgi/schedule', data);
   toast(d.ok ? t('toast-saved') : t('toast-error'));
 }
 
@@ -585,7 +609,7 @@ async function saveCreds() {
   if (user) body.username = user;
   if (pw1)  body.password = pw1;
   if (!Object.keys(body).length) return;
-  const d = await api('POST', '/api/settings', body);
+  const d = await api('POST', '/cgi-bin/api.cgi/settings', body);
   if (d.ok) {
     toast(t('toast-creds-ok'));
     document.getElementById('new-username').value = '';
@@ -596,14 +620,48 @@ async function saveCreds() {
 
 async function saveDownloadPath() {
   const path = document.getElementById('download-path').value.trim();
-  const d = await api('POST', '/api/settings', {download_path: path});
+  const d = await api('POST', '/cgi-bin/api.cgi/settings', {download_path: path});
   if (d.ok) toast(t('toast-saved'));
   else toast(t('toast-error'));
 }
 
+async function checkSelfUpdate() {
+  const d = await api('GET', '/cgi-bin/api.cgi/selfcheck');
+  if (!d.ok || !d.update_available) return;
+  const banner = document.getElementById('update-banner');
+  document.getElementById('update-banner-text').innerHTML =
+    t('self-update-avail').replace('{v}', d.latest);
+  document.getElementById('btn-self-update').textContent = t('btn-self-update');
+  banner.dataset.version = d.latest;
+  banner.classList.add('show');
+}
+
+async function doSelfUpdate() {
+  const btn = document.getElementById('btn-self-update');
+  const ver = document.getElementById('update-banner').dataset.version;
+  if (!confirm(`Update EmbyUpdater to v${ver}?\n\nThe app will restart automatically.`)) return;
+  btn.disabled = true;
+  btn.textContent = '⏳';
+  const d = await api('POST', '/cgi-bin/api.cgi/selfupdate');
+  if (d.ok) {
+    document.getElementById('update-banner-text').innerHTML =
+      t('self-updating').replace('{v}', d.version);
+    btn.style.display = 'none';
+  } else {
+    btn.disabled = false;
+    btn.textContent = t('btn-self-update');
+    toast(t('toast-error') + (d.error ? ': ' + d.error : ''));
+  }
+}
+
+async function doLogout() {
+  await fetch('/cgi-bin/api.cgi/logout', {method:'POST', credentials:'include'});
+  location='/login.html';
+}
+
 async function logoutAll() {
-  const d = await api('POST', '/api/settings', {logout_all: true});
-  if (d.ok) { toast(t('toast-logged-out')); setTimeout(() => location='/login', 1500); }
+  const d = await api('POST', '/cgi-bin/api.cgi/settings', {logout_all: true});
+  if (d.ok) { toast(t('toast-logged-out')); setTimeout(() => location='/login.html', 1500); }
 }
 
 // ═══════════════════════════════════════════════════════
@@ -623,7 +681,7 @@ function toast(msg) {
 (async () => {
   applyLang();
   try {
-    const d = await api('GET', '/api/status');
+    const d = await api('GET', '/cgi-bin/api.cgi/status');
     if (d.language) { lang = d.language; localStorage.setItem('eu_lang', lang); applyLang(); }
     const kv = parseKV(d.output || '');
     state.installed = kv.INSTALLED;
@@ -634,10 +692,18 @@ function toast(msg) {
     } else {
       inst.textContent = '?'; sub.textContent = t('v-inst-sub-err');
     }
+    // App version in header
+    if (d.app_version) {
+      document.getElementById('app-ver').textContent = 'v' + d.app_version;
+    }
     if (d.schedule) loadSched(d.schedule);
-    // populate download path
-    const cfg = await api('GET', '/api/config');
-    if (cfg) document.getElementById('download-path').value = cfg.download_path || '';
+    // populate config fields
+    const cfg = await api('GET', '/cgi-bin/api.cgi/config');
+    if (cfg) {
+      document.getElementById('download-path').value = cfg.download_path || '';
+    }
+    // check for EmbyUpdater self-update
+    checkSelfUpdate();
   } catch(e) { /* silent */ }
 })();
 </script>

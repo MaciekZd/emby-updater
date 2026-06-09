@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Emby Updater · Login</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0d0f14; --surface: #13161e; --border: #1e2330;
+  --text: #c8cdd8; --muted: #5a6070;
+  --accent: #00b36b; --accent2: #008f55;
+  --red: #ef4444; --mono: 'JetBrains Mono', monospace;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: var(--bg); color: var(--text);
+  font-family: system-ui, sans-serif;
+  min-height: 100vh; display: flex; align-items: center; justify-content: center;
+}
+.card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 20px; padding: 40px; width: 100%; max-width: 380px;
+}
+.logo {
+  display: flex; align-items: center; gap: 14px; margin-bottom: 32px;
+}
+.logo-icon { height: 44px; display: flex; align-items: center; }
+.logo-icon img { height: 44px; width: auto; }
+.logo-text { display: flex; align-items: center; height: 44px; padding-bottom: 4px; }
+.logo-text span { font-family: 'Nunito','Segoe UI',system-ui,sans-serif; font-size: 2.4rem; font-weight: 700; color: #e8eaf0; letter-spacing: -0.5px; line-height: 1; }
+label { display: block; font-size: 0.72rem; color: var(--muted); margin-bottom: 6px; letter-spacing: .5px; text-transform: uppercase; }
+input[type=text], input[type=password] {
+  width: 100%; padding: 11px 14px; border-radius: 10px;
+  background: var(--bg); border: 1px solid var(--border);
+  color: var(--text); font-size: 0.9rem; outline: none;
+  transition: border-color .15s;
+}
+input:focus { border-color: var(--accent); }
+.field { margin-bottom: 18px; }
+.btn-login {
+  width: 100%; padding: 13px; border-radius: 10px; border: none;
+  background: var(--accent); color: #fff;
+  font-size: 0.9rem; font-weight: 600; cursor: pointer;
+  transition: background .15s;
+}
+.btn-login:hover { background: var(--accent2); }
+.error {
+  background: rgba(239,68,68,.12); border: 1px solid rgba(239,68,68,.3);
+  color: var(--red); border-radius: 8px; padding: 10px 14px;
+  font-size: 0.78rem; margin-bottom: 18px; display: none;
+}
+.error.show { display: block; }
+.lang-row {
+  display: flex; justify-content: flex-end; gap: 8px;
+  margin-bottom: 28px;
+}
+.lang-btn {
+  background: none; border: 1px solid var(--border); color: var(--muted);
+  padding: 4px 10px; border-radius: 6px; font-size: 0.7rem; cursor: pointer;
+  font-family: var(--mono);
+}
+.lang-btn.active { border-color: var(--accent); color: var(--accent); }
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="lang-row">
+    <button class="lang-btn" id="btn-pl" onclick="setLang('pl')">PL</button>
+    <button class="lang-btn" id="btn-en" onclick="setLang('en')">EN</button>
+  </div>
+  <div class="logo">
+    <div class="logo-icon">
+      <img src="data:image/png;base64,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" alt="Emby">
+    </div>
+    <div class="logo-text">
+      <span>updater</span>
+    </div>
+  </div>
+  <div class="error" id="err"></div>
+  <div class="field">
+    <label id="lbl-user">Użytkownik</label>
+    <input type="text" id="username" autocomplete="username" required>
+  </div>
+  <div class="field">
+    <label id="lbl-pass">Hasło</label>
+    <input type="password" id="password" autocomplete="current-password" required onkeydown="if(event.key==='Enter')doLogin()">
+  </div>
+  <button class="btn-login" id="lbl-submit" onclick="doLogin()">Zaloguj się</button>
+</div>
+<script>
+async function doLogin() {
+  const btn = document.getElementById('lbl-submit');
+  btn.disabled = true;
+  const user = document.getElementById('username').value;
+  const pass = document.getElementById('password').value;
+  try {
+    const r = await fetch('/cgi-bin/api.cgi/login', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      credentials: 'include',
+      body: JSON.stringify({username: user, password: pass})
+    });
+    const d = await r.json();
+    if (d.ok) {
+      location = '/';
+    } else {
+      const err = document.getElementById('err');
+      err.textContent = T[lang].error;
+      err.classList.add('show');
+      btn.disabled = false;
+    }
+  } catch(e) {
+    btn.disabled = false;
+  }
+}
+
+const T = {
+  pl: { user:'Użytkownik', pass:'Hasło', submit:'Zaloguj się', error:'Nieprawidłowy login lub hasło.' },
+  en: { user:'Username',   pass:'Password', submit:'Sign in', error:'Invalid username or password.' }
+};
+let lang = localStorage.getItem('eu_lang') || 'pl';
+function setLang(l) {
+  lang = l; localStorage.setItem('eu_lang', l);
+  document.getElementById('lbl-user').textContent   = T[l].user;
+  document.getElementById('lbl-pass').textContent   = T[l].pass;
+  document.getElementById('lbl-submit').textContent = T[l].submit;
+  document.getElementById('btn-pl').classList.toggle('active', l==='pl');
+  document.getElementById('btn-en').classList.toggle('active', l==='en');
+  const err = document.getElementById('err');
+  if (err.classList.contains('show')) err.textContent = T[l].error;
+}
+setLang(lang);
+</script>
+</body>
+</html>
