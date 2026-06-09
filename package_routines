@@ -1,6 +1,7 @@
 pkg_pre_install(){
-    # Backup config before upgrade (QPKG_CONFIG md5sum mechanism requires
-    # a md5sum file we don't ship — do it manually instead)
+    # Manually backup config before upgrade.
+    # Note: QPKG_CONFIG is intentionally NOT set in qpkg.cfg to prevent
+    # qinstall.sh's store_config() from moving the file before we can back it up.
     CONFIG_FILE="${SYS_QPKG_DIR}/config"
     CONFIG_BACKUP="/tmp/EmbyUpdater_config.bak"
     if [ -f "$CONFIG_FILE" ]; then
