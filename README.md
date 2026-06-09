@@ -117,6 +117,16 @@ The default password is `admin` — **change it immediately** after first login 
 
 ---
 
+## Disclaimer
+This software is provided as-is, without any warranty of any kind.
+
+Use at your own risk. The author takes no responsibility for any data loss, system instability, or damage caused by using this software.
+Always back up your Emby Server data before performing an update.
+This project is not affiliated with or endorsed by Emby LLC.
+Tested on QNAP QTS with x86_64 architecture only - behavior on other configurations may vary.
+
+---
+
 ## License
 
 GPL
