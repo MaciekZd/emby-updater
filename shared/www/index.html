@@ -339,7 +339,8 @@ const T = {
     'reset-info': 'Jeśli zapomnisz hasła, wykonaj przez SSH:\n<code>touch /share/CACHEDEV1_DATA/.qpkg/EmbyUpdater/reset_credentials</code>\n\nnastępnie zrestartuj QPKG:\n<code>/share/CACHEDEV1_DATA/.qpkg/EmbyUpdater/EmbyUpdater.sh restart</code>\n\nHasło zostanie przywrócone do domyślnego: <code>admin / admin</code>',
     'self-update-avail':'Dostępna nowa wersja EmbyUpdater: <span>v{v}</span>',
     'btn-self-update':'⬆ Zaktualizuj',
-    'self-updating':'Pobieranie v{v}... aplikacja uruchomi się ponownie.',
+    'self-updating':'Pobieranie v{v}...',
+    'reloading-in':'Przeładowanie za',
     'toast-saved':'✓ Zapisano', 'toast-error':'✗ Błąd',
     'toast-creds-ok':'✓ Dane logowania zaktualizowane',
     'toast-creds-mismatch':'Hasła nie są identyczne',
@@ -379,7 +380,8 @@ const T = {
     'reset-info': 'If you forget your password, run via SSH:\n<code>touch /share/CACHEDEV1_DATA/.qpkg/EmbyUpdater/reset_credentials</code>\n\nthen restart the QPKG:\n<code>/share/CACHEDEV1_DATA/.qpkg/EmbyUpdater/EmbyUpdater.sh restart</code>\n\nCredentials will be reset to default: <code>admin / admin</code>',
     'self-update-avail':'New EmbyUpdater version available: <span>v{v}</span>',
     'btn-self-update':'⬆ Update',
-    'self-updating':'Downloading v{v}... app will restart shortly.',
+    'self-updating':'Downloading v{v}...',
+    'reloading-in':'Reloading in',
     'toast-saved':'✓ Saved', 'toast-error':'✗ Error',
     'toast-creds-ok':'✓ Credentials updated',
     'toast-creds-mismatch':'Passwords do not match',
@@ -647,14 +649,28 @@ async function doSelfUpdate() {
   btn.textContent = '⏳';
   const d = await api('POST', '/cgi-bin/api.cgi/selfupdate');
   if (d.ok) {
-    document.getElementById('update-banner-text').innerHTML =
-      t('self-updating').replace('{v}', d.version);
     btn.style.display = 'none';
+    startReloadCountdown(d.version);
   } else {
     btn.disabled = false;
     btn.textContent = t('btn-self-update');
     toast(t('toast-error') + (d.error ? ': ' + d.error : ''));
   }
+}
+
+function startReloadCountdown(ver) {
+  const textEl = document.getElementById('update-banner-text');
+  const banner  = document.getElementById('update-banner');
+  banner.classList.add('show');
+  let secs = 35;
+  function tick() {
+    textEl.innerHTML = t('self-updating').replace('{v}', ver).replace('...', '') +
+      ` — ${t('reloading-in')} <span>${secs}s</span>`;
+    if (secs <= 0) { location.reload(); return; }
+    secs--;
+    setTimeout(tick, 1000);
+  }
+  tick();
 }
 
 async function doLogout() {
@@ -707,6 +723,8 @@ function toast(msg) {
     }
     // check for EmbyUpdater self-update
     checkSelfUpdate();
+    // auto-check Emby versions on load
+    doCheck();
   } catch(e) { /* silent */ }
 })();
 </script>
